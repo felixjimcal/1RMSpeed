@@ -4,9 +4,9 @@ import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
+import android.support.v7.app.AppCompatActivity;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.MediaController;
@@ -17,7 +17,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int READ_REQUEST_CODE = 42;
 
-    Button btnQuickTest;
+    Button btnQuickTest, btnLess, btnMore;
     VideoView vWVideoView;
 
     @Override
@@ -41,6 +41,26 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+        btnLess.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(vWVideoView.getCurrentPosition() != 0)
+                {
+                    vWVideoView.seekTo(vWVideoView.getCurrentPosition() - 1000);
+                }
+            }
+        });
+
+        btnMore.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(vWVideoView.getCurrentPosition() < vWVideoView.getDuration())
+                {
+                    vWVideoView.seekTo(vWVideoView.getCurrentPosition() + 1000);
+                }
+            }
+        });
     }
 
     @Override
@@ -51,7 +71,9 @@ public class MainActivity extends AppCompatActivity {
                 uri = resultData.getData();
                 vWVideoView.setVideoURI(uri);
 
-                MediaController mediaController = new MediaController(this);
+                vWVideoView.start();
+
+                MediaController mediaController = new MediaController(vWVideoView.getContext());
                 vWVideoView.setMediaController(mediaController);
                 mediaController.setAnchorView(vWVideoView);
             }
@@ -60,6 +82,9 @@ public class MainActivity extends AppCompatActivity {
 
     private void ImportReferences() {
         btnQuickTest = findViewById(R.id.btnQuickTest);
+        btnLess = findViewById(R.id.btn_less);
+        btnMore = findViewById(R.id.btn_more);
+
         vWVideoView = findViewById(R.id.vView);
     }
 }
