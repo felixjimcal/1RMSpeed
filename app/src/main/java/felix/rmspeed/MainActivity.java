@@ -19,10 +19,13 @@ import java.util.concurrent.TimeUnit;
 public class MainActivity extends AppCompatActivity {
 
     private static final int READ_REQUEST_CODE = 42;
+    private static final int MIN_VIDEO_THUMB_POSITION = 0;
+    private static int VIDEO_FPS = 100;
+    private static final String FILE_TYPE_TO_FIND = "video/*";
 
-    Button btnQuickTest, btnLess, btnMore, btnStart, btnEnd;
-    VideoView vWVideoView;
-    TextView txtTime;
+    private Button btnLoadVideo, btnLess, btnMore, btnStart, btnEnd;
+    private VideoView videoView;
+    private TextView txtTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,14 +34,16 @@ public class MainActivity extends AppCompatActivity {
 
         ImportReferences();
 
-        btnQuickTest.setOnClickListener(new View.OnClickListener()
+        btnLoadVideo.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
                 intent.addCategory(Intent.CATEGORY_OPENABLE);
-                intent.setType("video/*");
-                try{
+                intent.setType(FILE_TYPE_TO_FIND);
+
+                try
+                {
                     startActivityForResult(intent, READ_REQUEST_CODE);
                 } catch (ActivityNotFoundException e){
                     Toast.makeText(MainActivity.this, "There are no file explorer clients installed.", Toast.LENGTH_SHORT).show();
@@ -49,40 +54,88 @@ public class MainActivity extends AppCompatActivity {
         btnLess.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(vWVideoView.getCurrentPosition() != 0)
-                {
-                    vWVideoView.pause();
-                    vWVideoView.seekTo(vWVideoView.getCurrentPosition() - 100);
-                }
+                AdjustThumbPositionInVideo(FPS.LESS);
             }
         });
 
         btnMore.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(vWVideoView.getCurrentPosition() < vWVideoView.getDuration())
-                {
-                    vWVideoView.pause();
-                    vWVideoView.seekTo(vWVideoView.getCurrentPosition() + 100);
-                }
+                AdjustThumbPositionInVideo(FPS.MORE);
             }
         });
 
         btnStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                btnStart.setText(String.valueOf(vWVideoView.getCurrentPosition()));
-                CalculateTime();
+                btnStart.setText(String.valueOf(videoView.getCurrentPosition()));
             }
         });
 
         btnEnd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                btnEnd.setText(String.valueOf(vWVideoView.getCurrentPosition()));
+                btnEnd.setText(String.valueOf(videoView.getCurrentPosition()));
                 CalculateTime();
             }
         });
+
+
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
+        if (requestCode == READ_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+            Uri uri = null;
+            if (resultData != null)
+            {
+                SetVideoOnVideoView(resultData);
+
+                SetVideoBar();
+            }
+        }
+    }
+
+    private void SetVideoBar() {
+        MediaController mediaController = new MediaController(videoView.getContext());
+        videoView.setMediaController(mediaController);
+        mediaController.setAnchorView(videoView);
+    }
+
+    private void SetVideoOnVideoView(Intent resultData) {
+        Uri uri = resultData.getData();
+        videoView.setVideoURI(uri);
+        videoView.start();
+    }
+
+    private void AdjustThumbPositionInVideo(FPS frames)
+    {
+        if(videoView.getCurrentPosition() > MIN_VIDEO_THUMB_POSITION && videoView.getCurrentPosition() < videoView.getDuration())
+        {
+            videoView.pause();
+
+            int position = videoView.getCurrentPosition();
+
+            switch(frames)
+            {
+                case LESS:
+                    position -= VIDEO_FPS;
+                    break;
+
+                case MORE:
+                    position += VIDEO_FPS;
+                    break;
+            }
+
+            try
+            {
+                videoView.seekTo(position);
+            }
+            catch (Exception exception)
+            {
+                System.out.println("Exception:!!!: " + exception.getMessage());
+            }
+        }
     }
 
     public void CalculateTime()
@@ -101,29 +154,13 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
-        if (requestCode == READ_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
-            Uri uri = null;
-            if (resultData != null) {
-                uri = resultData.getData();
-                vWVideoView.setVideoURI(uri);
-
-                vWVideoView.start();
-
-                MediaController mediaController = new MediaController(vWVideoView.getContext());
-                vWVideoView.setMediaController(mediaController);
-                mediaController.setAnchorView(vWVideoView);
-            }
-        }
-    }
-
     private void ImportReferences() {
-        btnQuickTest = findViewById(R.id.btnQuickTest);
+        btnLoadVideo = findViewById(R.id.btnLoadVideo);
+
         btnLess = findViewById(R.id.btn_less);
         btnMore = findViewById(R.id.btn_more);
 
-        vWVideoView = findViewById(R.id.vView);
+        videoView = findViewById(R.id.vView);
 
         btnStart = findViewById(R.id.btnStart);
         txtTime = findViewById(R.id.txtTime);
