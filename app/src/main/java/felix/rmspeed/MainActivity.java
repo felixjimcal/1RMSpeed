@@ -6,19 +6,23 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.MediaController;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
+
+import java.util.concurrent.TimeUnit;
+
 
 public class MainActivity extends AppCompatActivity {
 
     private static final int READ_REQUEST_CODE = 42;
 
-    Button btnQuickTest, btnLess, btnMore;
+    Button btnQuickTest, btnLess, btnMore, btnStart, btnEnd;
     VideoView vWVideoView;
+    TextView txtTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,7 +51,8 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if(vWVideoView.getCurrentPosition() != 0)
                 {
-                    vWVideoView.seekTo(vWVideoView.getCurrentPosition() - 1000);
+                    vWVideoView.pause();
+                    vWVideoView.seekTo(vWVideoView.getCurrentPosition() - 100);
                 }
             }
         });
@@ -57,10 +62,43 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if(vWVideoView.getCurrentPosition() < vWVideoView.getDuration())
                 {
-                    vWVideoView.seekTo(vWVideoView.getCurrentPosition() + 1000);
+                    vWVideoView.pause();
+                    vWVideoView.seekTo(vWVideoView.getCurrentPosition() + 100);
                 }
             }
         });
+
+        btnStart.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                btnStart.setText(String.valueOf(vWVideoView.getCurrentPosition()));
+                CalculateTime();
+            }
+        });
+
+        btnEnd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                btnEnd.setText(String.valueOf(vWVideoView.getCurrentPosition()));
+                CalculateTime();
+            }
+        });
+    }
+
+    public void CalculateTime()
+    {
+        try
+        {
+            int val1 = btnStart.getText() != null ? Integer.valueOf((String) btnStart.getText()) : 0;
+            int val2 = btnEnd.getText() != null ? Integer.valueOf((String) btnEnd.getText()) : 0;
+            int resuklt = val2 - val1;
+
+            txtTime.setText(String.valueOf(TimeUnit.MILLISECONDS.toSeconds(resuklt)));
+        }
+        catch (Exception exception)
+        {
+            System.out.println("Exception:!!!: " + exception.getMessage());
+        }
     }
 
     @Override
@@ -86,5 +124,9 @@ public class MainActivity extends AppCompatActivity {
         btnMore = findViewById(R.id.btn_more);
 
         vWVideoView = findViewById(R.id.vView);
+
+        btnStart = findViewById(R.id.btnStart);
+        txtTime = findViewById(R.id.txtTime);
+        btnEnd = findViewById(R.id.btnEnd);
     }
 }
