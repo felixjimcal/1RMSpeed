@@ -55,7 +55,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         btnLess.setOnClickListener(new View.OnClickListener() {
-            @RequiresApi(api = Build.VERSION_CODES.P)
             @Override
             public void onClick(View v) {
                 AdjustThumbPositionInVideo(FPS.LESS);
@@ -63,7 +62,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         btnMore.setOnClickListener(new View.OnClickListener() {
-            @RequiresApi(api = Build.VERSION_CODES.P)
             @Override
             public void onClick(View v) {
                 AdjustThumbPositionInVideo(FPS.MORE);
@@ -99,7 +97,6 @@ public class MainActivity extends AppCompatActivity {
 
             }
 
-            @RequiresApi(api = Build.VERSION_CODES.P)
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 SetFrame(actualFrame);
@@ -107,7 +104,6 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.P)
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
         if (requestCode == READ_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
@@ -133,8 +129,8 @@ public class MainActivity extends AppCompatActivity {
         VIDEO_DURATION = Integer.parseInt(mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
     }
 
-    @SuppressLint("ShowToast")
     @RequiresApi(api = Build.VERSION_CODES.P)
+    @SuppressLint("ShowToast")
     private void SetFrame(int frame) {
         try {
             seekBar.setProgress(frame);
@@ -146,7 +142,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.P)
     private void AdjustThumbPositionInVideo(FPS frames) {
         int actualFrame = seekBar.getProgress();
         switch (frames) {
