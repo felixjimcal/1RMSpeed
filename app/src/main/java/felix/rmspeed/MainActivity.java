@@ -9,6 +9,7 @@ import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -20,13 +21,12 @@ import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final int READ_REQUEST_CODE = 42;
     private static final int MIN_FRAME = 0;
     private static final String FILE_TYPE = "video/*";
 
     private int TOTAL_FRAMES = 0, START_FRAME = 0, END_FRAME = 0, VIDEO_DURATION = 0;
 
-    private Button btnLoadVideo, btnLess, btnMore, btnStart, btnEnd;
+    private Button btnOpenVideoCamera, btnLess, btnMore, btnStart, btnEnd;
     private ImageView imageView;
     private SeekBar seekBar;
     private MediaMetadataRetriever mediaMetadataRetriever;
@@ -39,15 +39,13 @@ public class MainActivity extends AppCompatActivity {
 
         ImportReferences();
 
-        btnLoadVideo.setOnClickListener(new View.OnClickListener() {
+        btnOpenVideoCamera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-                intent.addCategory(Intent.CATEGORY_OPENABLE);
-                intent.setType(FILE_TYPE);
+                Intent intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
 
                 try {
-                    startActivityForResult(intent, READ_REQUEST_CODE);
+                    startActivityForResult(intent, 101);
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(MainActivity.this, "There are no file explorer clients installed.", Toast.LENGTH_SHORT).show();
                 }
@@ -71,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
         btnStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                btnStart.setText(seekBar.getProgress());
                 START_FRAME = seekBar.getProgress();
             }
         });
@@ -78,6 +77,7 @@ public class MainActivity extends AppCompatActivity {
         btnEnd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                btnEnd.setText(seekBar.getProgress());
                 END_FRAME = seekBar.getProgress();
                 CalculateTime();
             }
@@ -106,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
-        if (requestCode == READ_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+       // if (requestCode == READ_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             if (resultData != null) {
                 SettingUpMedia(resultData);
 
@@ -114,7 +114,7 @@ public class MainActivity extends AppCompatActivity {
 
                 SetFrame(MIN_FRAME);
             }
-        }
+      //  }
     }
 
     private void SettingUpSeekBar() {
@@ -174,7 +174,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void ImportReferences() {
-        btnLoadVideo = findViewById(R.id.btnLoadVideo);
+        btnOpenVideoCamera = findViewById(R.id.btnLoadVideo);
         imageView = findViewById(R.id.imageView);
         mediaMetadataRetriever = new MediaMetadataRetriever();
 
